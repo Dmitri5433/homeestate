@@ -12,7 +12,7 @@ export default function Hero({ onGoToCatalog }) {
         </button>
       </div>
       <div className="hero-stats">
-        <div className="stat"><b>8+</b><span>Объектов</span></div>
+        <div className="stat"><b>40+</b><span>Объектов</span></div>
         <div className="stat"><b>2</b><span>Города</span></div>
         <div className="stat"><b>5★</b><span>Рейтинг</span></div>
       </div>

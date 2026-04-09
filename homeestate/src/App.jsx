@@ -2,28 +2,27 @@ import { useState, useEffect } from "react";
 import "./App.css";
 
 import Header from "./components/Header";
-import Hero from "./components/Hero";
 import SearchBar from "./components/SearchBar";
 import FilterButtons from "./components/FilterButtons";
 import Counter from "./components/Counter";
+import ProductCard from "./components/ProductCard";
 import ProductList from "./components/ProductList";
 import Footer from "./components/Footer";
 
 const API_URL = "http://localhost:5182/api/apartment";
+const CATEGORIES = ["Студия", "1-комнатная", "2-комнатная", "3-комнатная"];
 
 export default function App() {
-  const [view, setView] = useState("catalog");
+  const [view, setView] = useState("home");
   const [favorites, setFavorites] = useState([]);
   const [cart, setCart] = useState([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("Все");
 
-  // API state
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Загрузка квартир с бэкенда
   const fetchApartments = async () => {
     setLoading(true);
     setError(null);
@@ -31,8 +30,6 @@ export default function App() {
       const res = await fetch(`${API_URL}/getAll`);
       if (!res.ok) throw new Error("Ошибка сервера");
       const data = await res.json();
-
-      // Маппим поля бэкенда на поля фронтенда
       const mapped = data.map((a) => ({
         id: a.id,
         name: a.name,
@@ -43,10 +40,9 @@ export default function App() {
         price: a.price,
         image: a.imageUrl || "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600",
       }));
-
       setProducts(mapped);
     } catch (err) {
-      setError("Не удалось подключиться к серверу. Убедитесь что бэкенд запущен на порту 5182.");
+      setError("Не удалось подключиться к серверу.");
     } finally {
       setLoading(false);
     }
@@ -62,20 +58,29 @@ export default function App() {
     );
   };
 
-  const addToCart = (item) => {
-    setCart((prev) => [...prev, item]);
-  };
+  const addToCart = (item) => setCart((prev) => [...prev, item]);
+  const removeFromCart = (index) => setCart((prev) => prev.filter((_, i) => i !== index));
 
-  const removeFromCart = (index) => {
-    setCart((prev) => prev.filter((_, i) => i !== index));
-  };
+  // Последние 5 добавленных
+  const latestProducts = [...products].reverse().slice(0, 5);
 
+  // Рекомендации — 5 самых дорогих
+  const recommended = [...products]
+    .sort((a, b) => b.price - a.price)
+    .slice(0, 5);
+
+  // Фильтрация для каталога
   const filtered = products.filter(
     (item) =>
       (item.name.toLowerCase().includes(search.toLowerCase()) ||
         item.city.toLowerCase().includes(search.toLowerCase())) &&
       (category === "Все" || item.category === category)
   );
+
+  const byCategory = CATEGORIES.map((cat) => ({
+    cat,
+    items: products.filter((p) => p.category === cat),
+  }));
 
   const total = cart.reduce((s, i) => s + i.price, 0);
 
@@ -88,54 +93,185 @@ export default function App() {
         cartCount={cart.length}
       />
 
-      {/* ── КАТАЛОГ ─────────────────────────────────── */}
-      {view === "catalog" && (
+      {/* ══════════════════════════════════════════════
+          ГЛАВНАЯ СТРАНИЦА
+      ══════════════════════════════════════════════ */}
+      {view === "home" && (
         <>
-          <Hero onGoToCatalog={() => {
-            document.getElementById("catalog-section")?.scrollIntoView({ behavior: "smooth" });
-          }} />
-
-          <section id="catalog-section" className="catalog-section">
-            <div className="controls">
-              <SearchBar value={search} onChange={setSearch} />
-              <FilterButtons active={category} onChange={setCategory} />
+          {/* HERO */}
+          <section className="hero">
+            <div className="hero-content">
+              <p className="hero-label">Недвижимость Молдовы</p>
+              <h1>Найдите квартиру<br />своей мечты</h1>
+              <p className="hero-sub">
+                Лучшие предложения в Кишинёве и Бельцах.
+                Студии, апартаменты и пентхаусы.
+              </p>
+              <div className="hero-actions">
+                <button className="hero-btn" onClick={() => setView("catalog")}>
+                  Смотреть каталог →
+                </button>
+                <button className="hero-btn-outline" onClick={() => setView("about")}>
+                  О компании
+                </button>
+              </div>
             </div>
+            <div className="hero-stats">
+              <div className="stat"><b>40+</b><span>Объектов</span></div>
+              <div className="stat"><b>2</b><span>Города</span></div>
+              <div className="stat"><b>9 лет</b><span>Опыт</span></div>
+              <div className="stat"><b>98%</b><span>Довольны</span></div>
+            </div>
+          </section>
 
-            <Counter found={filtered.length} cartCount={cart.length} />
+          {/* КАТЕГОРИИ */}
+          <section className="home-categories">
+            {CATEGORIES.map((cat) => {
+              const count = products.filter((p) => p.category === cat).length;
+              const icons = { "Студия": "🏠", "1-комнатная": "🛏", "2-комнатная": "🏡", "3-комнатная": "🏰" };
+              return (
+                <div
+                  key={cat}
+                  className="cat-card"
+                  onClick={() => { setCategory(cat); setView("catalog"); }}
+                >
+                  <span className="cat-icon">{icons[cat]}</span>
+                  <b>{cat}</b>
+                  <span className="cat-count">{count} объектов</span>
+                </div>
+              );
+            })}
+          </section>
 
-            {loading && (
-              <div className="state-msg loading">
-                <span className="spinner" /> Загрузка данных с сервера...
+          {/* НОВЫЕ ПРЕДЛОЖЕНИЯ */}
+          <section className="home-section">
+            <div className="section-header">
+              <div>
+                <h2>Новые предложения</h2>
+                <p>Последние добавленные объекты</p>
+              </div>
+              <button className="see-all-btn" onClick={() => setView("catalog")}>
+                Все объекты →
+              </button>
+            </div>
+            {loading && <div className="state-msg loading"><span className="spinner" /> Загрузка...</div>}
+            {error && <div className="state-msg error">⚠️ {error}</div>}
+            {!loading && !error && (
+              <div className="grid">
+                {latestProducts.map((item) => (
+                  <ProductCard
+                    key={item.id}
+                    item={item}
+                    isFav={favorites.includes(item.id)}
+                    onFav={() => toggleFav(item.id)}
+                    onAdd={() => addToCart(item)}
+                  />
+                ))}
               </div>
             )}
+          </section>
 
-            {error && !loading && (
-              <div className="state-msg error">
-                ⚠️ {error}
+          {/* РЕКОМЕНДАЦИИ */}
+          <section className="home-section home-section--dark">
+            <div className="section-header">
+              <div>
+                <h2>Рекомендации</h2>
+                <p>Премиальные объекты для взыскательных покупателей</p>
+              </div>
+              <button className="see-all-btn see-all-btn--light" onClick={() => setView("catalog")}>
+                Все объекты →
+              </button>
+            </div>
+            {!loading && !error && (
+              <div className="grid">
+                {recommended.map((item) => (
+                  <ProductCard
+                    key={item.id}
+                    item={item}
+                    isFav={favorites.includes(item.id)}
+                    onFav={() => toggleFav(item.id)}
+                    onAdd={() => addToCart(item)}
+                  />
+                ))}
               </div>
             )}
+          </section>
 
-            {!loading && !error && products.length === 0 && (
-              <div className="empty-state">
-                <div className="empty-icon">🏚️</div>
-                <p>Нет квартир в базе данных</p>
-                <span>Добавьте квартиры через Swagger на порту 5182</span>
-              </div>
-            )}
-
-            {!loading && !error && products.length > 0 && (
-              <ProductList
-                items={filtered}
-                favorites={favorites}
-                onFav={toggleFav}
-                onAdd={addToCart}
-              />
-            )}
+          {/* CTA БАННЕР */}
+          <section className="cta-banner">
+            <div className="cta-content">
+              <h2>Не нашли подходящий вариант?</h2>
+              <p>Наши специалисты помогут подобрать квартиру под ваши требования</p>
+              <button className="hero-btn" onClick={() => setView("about")}>
+                Связаться с нами
+              </button>
+            </div>
           </section>
         </>
       )}
 
-      {/* ── ИЗБРАННОЕ ───────────────────────────────── */}
+      {/* ══════════════════════════════════════════════
+          КАТАЛОГ
+      ══════════════════════════════════════════════ */}
+      {view === "catalog" && (
+        <section className="catalog-section">
+          <div className="catalog-hero">
+            <h1>Каталог квартир</h1>
+            <p>Все объекты недвижимости Молдовы — {products.length} предложений</p>
+          </div>
+
+          <div className="controls">
+            <SearchBar value={search} onChange={setSearch} />
+            <FilterButtons active={category} onChange={setCategory} />
+          </div>
+
+          <Counter found={filtered.length} cartCount={cart.length} />
+
+          {loading && <div className="state-msg loading"><span className="spinner" /> Загрузка...</div>}
+          {error && <div className="state-msg error">⚠️ {error}</div>}
+
+          {/* Фильтр или поиск — обычный список */}
+          {!loading && !error && (category !== "Все" || search !== "") && (
+            <ProductList
+              items={filtered}
+              favorites={favorites}
+              onFav={toggleFav}
+              onAdd={addToCart}
+            />
+          )}
+
+          {/* "Все" без поиска — секции по категориям */}
+          {!loading && !error && category === "Все" && search === "" && (
+            <div className="catalog-by-category">
+              {byCategory.map(({ cat, items }) =>
+                items.length > 0 ? (
+                  <div key={cat} className="category-section">
+                    <div className="category-section-header">
+                      <h3>{cat}</h3>
+                      <span>{items.length} объектов</span>
+                    </div>
+                    <div className="grid">
+                      {items.map((item) => (
+                        <ProductCard
+                          key={item.id}
+                          item={item}
+                          isFav={favorites.includes(item.id)}
+                          onFav={() => toggleFav(item.id)}
+                          onAdd={() => addToCart(item)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ) : null
+              )}
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* ══════════════════════════════════════════════
+          ИЗБРАННОЕ
+      ══════════════════════════════════════════════ */}
       {view === "favorites" && (
         <div className="page">
           <div className="page-header">
@@ -151,14 +287,15 @@ export default function App() {
         </div>
       )}
 
-      {/* ── КОРЗИНА ─────────────────────────────────── */}
+      {/* ══════════════════════════════════════════════
+          КОРЗИНА
+      ══════════════════════════════════════════════ */}
       {view === "cart" && (
         <div className="page">
           <div className="page-header">
             <h2>Корзина</h2>
             <span>{cart.length} объектов</span>
           </div>
-
           {cart.length === 0 ? (
             <div className="empty-state">
               <div className="empty-icon">🛒</div>
@@ -195,7 +332,9 @@ export default function App() {
         </div>
       )}
 
-      {/* ── О НАС ───────────────────────────────────── */}
+      {/* ══════════════════════════════════════════════
+          О НАС
+      ══════════════════════════════════════════════ */}
       {view === "about" && (
         <div className="page">
           <div className="page-header">

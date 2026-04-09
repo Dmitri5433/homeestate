@@ -1,10 +1,13 @@
 export default function Header({ view, setView, favCount, cartCount }) {
   return (
     <header className="header">
-      <div className="logo" onClick={() => setView("catalog")}>
+      <div className="logo" onClick={() => setView("home")}>
         Home<span>Estate</span>
       </div>
       <nav className="nav">
+        <span className={view === "home" ? "active" : ""} onClick={() => setView("home")}>
+          Главная
+        </span>
         <span className={view === "catalog" ? "active" : ""} onClick={() => setView("catalog")}>
           Каталог
         </span>
