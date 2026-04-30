@@ -1,9 +1,9 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 
 const API_URL = "http://localhost:5182/api/auth";
 
 export default function AuthPage({ onLogin }) {
-  const [mode, setMode] = useState("login"); // login | register
+  const [mode, setMode] = useState("login");
   const [form, setForm] = useState({ userName: "", email: "", password: "" });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -16,7 +16,6 @@ export default function AuthPage({ onLogin }) {
   const handleSubmit = async () => {
     setLoading(true);
     setError(null);
-
     try {
       const url = mode === "login" ? `${API_URL}/login` : `${API_URL}/register`;
       const body = mode === "login"
@@ -26,7 +25,7 @@ export default function AuthPage({ onLogin }) {
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // важно для cookies
+        credentials: "include",
         body: JSON.stringify(body),
       });
 
@@ -47,10 +46,9 @@ export default function AuthPage({ onLogin }) {
           setError(data.message);
         }
       } else {
-        // Логин успешен — передаём данные пользователя
         onLogin(data);
       }
-    } catch (err) {
+    } catch {
       setError("Не удалось подключиться к серверу.");
     } finally {
       setLoading(false);
@@ -105,14 +103,8 @@ export default function AuthPage({ onLogin }) {
 
           {error && <div className="auth-error">⚠️ {error}</div>}
 
-          <button
-            className="auth-submit"
-            onClick={handleSubmit}
-            disabled={loading}
-          >
-            {loading
-              ? "Загрузка..."
-              : mode === "login" ? "Войти" : "Зарегистрироваться"}
+          <button className="auth-submit" onClick={handleSubmit} disabled={loading}>
+            {loading ? "Загрузка..." : mode === "login" ? "Войти" : "Зарегистрироваться"}
           </button>
         </div>
 
@@ -122,6 +114,12 @@ export default function AuthPage({ onLogin }) {
           ) : (
             <>Уже есть аккаунт? <span onClick={() => setMode("login")}>Войти</span></>
           )}
+        </div>
+
+        <div style={{ marginTop: "12px", textAlign: "center" }}>
+          <a href="http://localhost:5173" style={{ color: "#c8a96e", fontSize: "14px", textDecoration: "none" }}>
+            ← На главную
+          </a>
         </div>
       </div>
     </div>
