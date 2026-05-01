@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import "./App.css";
 
 const API = "http://localhost:5182/api/apartment";
@@ -14,6 +14,55 @@ const EMPTY_FORM = {
   imageUrl: "",
 };
 
+
+function UsersPage() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("http://localhost:5182/api/auth/users")
+      .then(r => r.json())
+      .then(d => { setUsers(d); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, []);
+
+  return (
+    <div className="admin-content">
+      <div className="table-toolbar">
+        <h2 style={{ margin: 0 }}>Пользователи</h2>
+      </div>
+      {loading && <div className="admin-loading">Загрузка...</div>}
+      {!loading && (
+        <div className="table-wrap">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Имя пользователя</th>
+                <th>Email</th>
+                <th>Дата регистрации</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map(u => (
+                <tr key={u.id}>
+                  <td><span className="id-badge">#{u.id}</span></td>
+                  <td><b>{u.userName}</b></td>
+                  <td>{u.email}</td>
+                  <td>{new Date(u.createdAt).toLocaleDateString("ru-RU")}</td>
+                </tr>
+              ))}
+              {users.length === 0 && (
+                <tr><td colSpan="4" className="table-empty">Нет пользователей</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+      <div className="table-footer">Всего: {users.length}</div>
+    </div>
+  );
+}
 export default function App() {
   const [page, setPage] = useState("apartments");
   const [apartments, setApartments] = useState([]);
@@ -321,15 +370,15 @@ export default function App() {
         )}
 
         {/* ── USERS ───────────────────────────── */}
-        {page === "users" && (
-          <div className="admin-content">
-            <div className="coming-soon">
-              <span>👥</span>
-              <h2>Управление пользователями</h2>
-              <p>Раздел в разработке</p>
-            </div>
-          </div>
-        )}
+        {page === "users" && <UsersPage />}
+
+
+
+
+
+
+
+
       </main>
 
       {/* ── MODALS ──────────────────────────────── */}
@@ -417,3 +466,6 @@ export default function App() {
     </div>
   );
 }
+
+
+
