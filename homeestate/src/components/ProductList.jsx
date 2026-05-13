@@ -1,6 +1,6 @@
 import ProductCard from "./ProductCard";
 
-export default function ProductList({ items, favorites, onFav, onAdd }) {
+export default function ProductList({ items, favorites, onFav, onAdd, onOpen }) {
   if (items.length === 0) {
     return (
       <div className="empty-state">
@@ -20,6 +20,7 @@ export default function ProductList({ items, favorites, onFav, onAdd }) {
           isFav={favorites.includes(item.id)}
           onFav={() => onFav(item.id)}
           onAdd={() => onAdd(item)}
+          onOpen={() => onOpen && onOpen(item.id)}
         />
       ))}
     </div>

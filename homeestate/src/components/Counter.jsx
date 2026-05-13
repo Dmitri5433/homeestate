@@ -1,8 +1,8 @@
-export default function Counter({ found, cartCount }) {
+export default function Counter({ found, requestsCount }) {
   return (
     <div className="counter">
       <span>🏠 Найдено: <b>{found}</b> объектов</span>
-      <span>🛒 В корзине: <b>{cartCount}</b></span>
+      <span>📋 Заявок на просмотр: <b>{requestsCount}</b></span>
     </div>
   );
 }

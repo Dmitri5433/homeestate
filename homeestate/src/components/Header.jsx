@@ -1,4 +1,4 @@
-export default function Header({ view, setView, favCount, cartCount, user, onLoginClick, onLogout }) {
+export default function Header({ view, setView, favCount, requestsCount, user, onLoginClick, onLogout }) {
   return (
     <header className="header">
       <div className="logo" onClick={() => setView("home")}>
@@ -11,15 +11,17 @@ export default function Header({ view, setView, favCount, cartCount, user, onLog
           Избранное {favCount > 0 && <em>({favCount})</em>}
         </span>
         <span className={view === "about" ? "active" : ""} onClick={() => setView("about")}>О нас</span>
-        <button className="cart-btn" onClick={() => setView("cart")}>
-          🛒 <span>{cartCount}</span>
-        </button>
-
+        
         {user ? (
-          <div className="user-menu">
-            <span className="user-name">👤 {user.userName}</span>
-            <button className="logout-btn" onClick={onLogout}>Выйти</button>
-          </div>
+          <>
+            <button className="cart-btn" onClick={() => setView("profile")}>
+              📋 Заявки {requestsCount > 0 && <span>{requestsCount}</span>}
+            </button>
+            <div className="user-menu">
+              <span className="user-name clickable" onClick={() => setView("profile")}>👤 {user.userName}</span>
+              <button className="logout-btn" onClick={onLogout}>Выйти</button>
+            </div>
+          </>
         ) : (
           <button className="login-btn" onClick={onLoginClick}>Войти</button>
         )}

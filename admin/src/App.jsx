@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 
 const API = "http://localhost:5182/api/apartment";
@@ -12,6 +12,7 @@ const EMPTY_FORM = {
   area: "",
   price: "",
   imageUrl: "",
+  images: [],
 };
 
 
@@ -99,13 +100,28 @@ export default function App() {
   );
 
   const openAdd = () => { setForm(EMPTY_FORM); setModal("add"); setMsg(null); };
-  const openEdit = (a) => { setForm({ ...a, imageUrl: a.imageUrl || "" }); setModal("edit"); setMsg(null); };
+  const openEdit = (a) => { setForm({ ...a, imageUrl: a.imageUrl || "", images: a.images || [] }); setModal("edit"); setMsg(null); };
   const openDelete = (a) => { setForm(a); setModal("delete"); setMsg(null); };
   const closeModal = () => { setModal(null); setMsg(null); };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleAddImage = () => {
+    setForm(prev => ({ ...prev, images: [...prev.images, ""] }));
+  };
+
+  const handleImageChange = (index, value) => {
+    const newImages = [...form.images];
+    newImages[index] = value;
+    setForm(prev => ({ ...prev, images: newImages }));
+  };
+
+  const handleRemoveImage = (index) => {
+    const newImages = form.images.filter((_, i) => i !== index);
+    setForm(prev => ({ ...prev, images: newImages }));
   };
 
   const handleSave = async () => {
@@ -336,11 +352,18 @@ export default function App() {
                       <tr key={a.id}>
                         <td><span className="id-badge">#{a.id}</span></td>
                         <td>
-                          <img
-                            src={a.imageUrl || "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=80"}
-                            alt=""
-                            className="table-img"
-                          />
+                          <div style={{ position: "relative", display: "inline-block" }}>
+                            <img
+                              src={a.imageUrl || "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=80"}
+                              alt=""
+                              className="table-img"
+                            />
+                            {a.images && a.images.length > 0 && (
+                              <span style={{ position: "absolute", bottom: "-5px", right: "-5px", background: "var(--gold)", color: "white", fontSize: "0.7rem", padding: "2px 6px", borderRadius: "10px", fontWeight: "bold" }}>
+                                +{a.images.length}
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td><b>{a.name}</b></td>
                         <td>{a.city}</td>
@@ -424,8 +447,26 @@ export default function App() {
                   <input name="price" type="number" value={form.price} onChange={handleChange} placeholder="85000" />
                 </div>
                 <div className="form-field form-field--full">
-                  <label>URL изображения</label>
+                  <label>Главное изображение (URL)</label>
                   <input name="imageUrl" value={form.imageUrl} onChange={handleChange} placeholder="https://..." />
+                </div>
+                <div className="form-field form-field--full">
+                  <label>Дополнительные фото</label>
+                  {form.images.map((img, idx) => (
+                    <div key={idx} style={{ display: "flex", gap: "8px", marginBottom: "8px", alignItems: "center" }}>
+                      {img && <img src={img} alt="" style={{ width: "40px", height: "40px", objectFit: "cover", borderRadius: "4px", backgroundColor: "#eee" }} />}
+                      <input 
+                        value={img} 
+                        onChange={(e) => handleImageChange(idx, e.target.value)} 
+                        placeholder="https://..." 
+                        style={{ flex: 1 }}
+                      />
+                      <button type="button" onClick={() => handleRemoveImage(idx)} className="btn-cancel" style={{ width: "40px", height: "40px", padding: 0 }}>✕</button>
+                    </div>
+                  ))}
+                  <button type="button" onClick={handleAddImage} style={{ width: "fit-content", padding: "6px 12px", background: "transparent", border: "1px dashed var(--gold)", color: "var(--gold)", borderRadius: "4px", cursor: "pointer", fontSize: "0.9rem", marginTop: "4px" }}>
+                    + Добавить фото
+                  </button>
                 </div>
               </div>
               {msg && <div className={`form-msg form-msg--${msg.type}`}>{msg.text}</div>}

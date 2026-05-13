@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function ProductCard({ item, isFav, onFav, onAdd }) {
+export default function ProductCard({ item, isFav, onFav, onAdd, onOpen }) {
   const [liked, setLiked] = useState(false);
   const [added, setAdded] = useState(false);
 
@@ -11,10 +11,10 @@ export default function ProductCard({ item, isFav, onFav, onAdd }) {
   };
 
   return (
-    <div className="card">
+    <div className="card" onClick={onOpen} style={{ cursor: "pointer" }}>
       <div className="card-image">
         <img src={item.image} alt={item.name} loading="lazy" />
-        <button className="fav-btn" onClick={onFav} title="В избранное">
+        <button className="fav-btn" onClick={(e) => { e.stopPropagation(); onFav(); }} title="В избранное">
           {isFav ? "❤️" : "🤍"}
         </button>
         <div className="price-badge">${item.price.toLocaleString()}</div>
@@ -32,15 +32,15 @@ export default function ProductCard({ item, isFav, onFav, onAdd }) {
         <div className="card-actions">
           <button
             className={liked ? "like-btn liked" : "like-btn"}
-            onClick={() => setLiked(!liked)}
+            onClick={(e) => { e.stopPropagation(); setLiked(!liked); }}
           >
             {liked ? "♥ Liked" : "♡ Like"}
           </button>
           <button
             className={added ? "add-btn added" : "add-btn"}
-            onClick={handleAdd}
+            onClick={(e) => { e.stopPropagation(); handleAdd(); }}
           >
-            {added ? "✓ Добавлено" : "В корзину"}
+            {added ? "✓ Заявка отправлена" : "Заявка на просмотр"}
           </button>
         </div>
       </div>

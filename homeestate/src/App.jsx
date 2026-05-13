@@ -8,6 +8,8 @@ import FilterButtons from "./components/FilterButtons";
 import Counter from "./components/Counter";
 import ProductCard from "./components/ProductCard";
 import ProductList from "./components/ProductList";
+import ProfilePage from "./pages/ProfilePage";
+import ApartmentDetails from "./pages/ApartmentDetails";
 import Footer from "./components/Footer";
 
 const API_URL = "http://localhost:5182/api/apartment";
@@ -17,9 +19,10 @@ const CATEGORIES = ["Студия", "1-комнатная", "2-комнатна�
 export default function App() {
   const [view, setView] = useState("home");
   const [favorites, setFavorites] = useState([]);
-  const [cart, setCart] = useState([]);
+  const [requests, setRequests] = useState([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("Все");
+  const [selectedApartmentId, setSelectedApartmentId] = useState(null);
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -79,7 +82,8 @@ export default function App() {
     await fetch(`${AUTH_URL}/logout`, { method: "POST", credentials: "include" });
     setUser(null);
     setFavorites([]);
-    setCart([]);
+    setRequests([]);
+    setView("home");
   };
 
   const toggleFav = (id) => {
@@ -88,8 +92,21 @@ export default function App() {
     );
   };
 
-  const addToCart = (item) => setCart((prev) => [...prev, item]);
-  const removeFromCart = (index) => setCart((prev) => prev.filter((_, i) => i !== index));
+  const addRequest = (item) => {
+    if (!user) {
+      setShowAuth(true);
+      return;
+    }
+    if (!requests.some(req => req.id === item.id)) {
+      setRequests((prev) => [...prev, { ...item, date: new Date().toLocaleDateString() }]);
+    }
+  };
+  const removeRequest = (id) => setRequests((prev) => prev.filter((r) => r.id !== id));
+
+  const handleOpenApartment = (id) => {
+    setSelectedApartmentId(id);
+    setView("apartment");
+  };
 
   const latestProducts = [...products].reverse().slice(0, 5);
   const recommended = [...products].sort((a, b) => b.price - a.price).slice(0, 5);
@@ -106,11 +123,17 @@ export default function App() {
     items: products.filter((p) => p.category === cat),
   }));
 
-  const total = cart.reduce((s, i) => s + i.price, 0);
+
 
   // Показываем страницу авторизации
   if (showAuth) {
     return <AuthPage onLogin={handleLogin} onBack={() => setShowAuth(false)} />;
+  }
+
+  if (view === "profile" && !user) {
+    setShowAuth(true);
+    setView("home");
+    return null;
   }
 
   return (
@@ -119,7 +142,7 @@ export default function App() {
         view={view}
         setView={setView}
         favCount={favorites.length}
-        cartCount={cart.length}
+        requestsCount={requests.length}
         user={user}
         onLoginClick={() => setShowAuth(true)}
         onLogout={handleLogout}
@@ -181,7 +204,7 @@ export default function App() {
             {!loading && !error && (
               <div className="grid">
                 {latestProducts.map((item) => (
-                  <ProductCard key={item.id} item={item} isFav={favorites.includes(item.id)} onFav={() => toggleFav(item.id)} onAdd={() => addToCart(item)} />
+                  <ProductCard key={item.id} item={item} isFav={favorites.includes(item.id)} onFav={() => toggleFav(item.id)} onAdd={() => addRequest(item)} onOpen={() => handleOpenApartment(item.id)} />
                 ))}
               </div>
             )}
@@ -198,7 +221,7 @@ export default function App() {
             {!loading && !error && (
               <div className="grid">
                 {recommended.map((item) => (
-                  <ProductCard key={item.id} item={item} isFav={favorites.includes(item.id)} onFav={() => toggleFav(item.id)} onAdd={() => addToCart(item)} />
+                  <ProductCard key={item.id} item={item} isFav={favorites.includes(item.id)} onFav={() => toggleFav(item.id)} onAdd={() => addRequest(item)} onOpen={() => handleOpenApartment(item.id)} />
                 ))}
               </div>
             )}
@@ -215,6 +238,19 @@ export default function App() {
       )}
 
       {/* ══════════════════════════════════════════════
+          ДЕТАЛИ КВАРТИРЫ
+      ══════════════════════════════════════════════ */}
+      {view === "apartment" && selectedApartmentId && (
+        <ApartmentDetails 
+          id={selectedApartmentId} 
+          onBack={() => setView("catalog")}
+          onAdd={addRequest}
+          isFav={favorites.includes(selectedApartmentId)}
+          onFav={() => toggleFav(selectedApartmentId)}
+        />
+      )}
+
+      {/* ══════════════════════════════════════════════
           КАТАЛОГ
       ══════════════════════════════════════════════ */}
       {view === "catalog" && (
@@ -227,11 +263,11 @@ export default function App() {
             <SearchBar value={search} onChange={setSearch} />
             <FilterButtons active={category} onChange={setCategory} />
           </div>
-          <Counter found={filtered.length} cartCount={cart.length} />
+          <Counter found={filtered.length} requestsCount={requests.length} />
           {loading && <div className="state-msg loading"><span className="spinner" /> Загрузка...</div>}
           {error && <div className="state-msg error">⚠️ {error}</div>}
           {!loading && !error && (category !== "Все" || search !== "") && (
-            <ProductList items={filtered} favorites={favorites} onFav={toggleFav} onAdd={addToCart} />
+            <ProductList items={filtered} favorites={favorites} onFav={toggleFav} onAdd={addRequest} onOpen={handleOpenApartment} />
           )}
           {!loading && !error && category === "Все" && search === "" && (
             <div className="catalog-by-category">
@@ -244,7 +280,7 @@ export default function App() {
                     </div>
                     <div className="grid" style={{ padding: "16px 6% 24px" }}>
                       {items.map((item) => (
-                        <ProductCard key={item.id} item={item} isFav={favorites.includes(item.id)} onFav={() => toggleFav(item.id)} onAdd={() => addToCart(item)} />
+                        <ProductCard key={item.id} item={item} isFav={favorites.includes(item.id)} onFav={() => toggleFav(item.id)} onAdd={() => addRequest(item)} onOpen={() => handleOpenApartment(item.id)} />
                       ))}
                     </div>
                   </div>
@@ -264,51 +300,24 @@ export default function App() {
             <h2>Избранные квартиры</h2>
             <span>{favorites.length} объектов</span>
           </div>
-          <ProductList items={products.filter((a) => favorites.includes(a.id))} favorites={favorites} onFav={toggleFav} onAdd={addToCart} />
+          <ProductList items={products.filter((a) => favorites.includes(a.id))} favorites={favorites} onFav={toggleFav} onAdd={addRequest} onOpen={handleOpenApartment} />
         </div>
       )}
 
       {/* ══════════════════════════════════════════════
-          КОРЗИНА
+          ПРОФИЛЬ
       ══════════════════════════════════════════════ */}
-      {view === "cart" && (
-        <div className="page">
-          <div className="page-header">
-            <h2>Корзина</h2>
-            <span>{cart.length} объектов</span>
-          </div>
-          {cart.length === 0 ? (
-            <div className="empty-state">
-              <div className="empty-icon">🛒</div>
-              <p>Корзина пуста</p>
-              <span>Добавьте квартиры из каталога</span>
-              <button className="go-catalog-btn" onClick={() => setView("catalog")}>Перейти в каталог</button>
-            </div>
-          ) : (
-            <div className="cart-wrap">
-              <div className="cart-list">
-                {cart.map((item, i) => (
-                  <div key={i} className="cart-row">
-                    <img src={item.image} alt={item.name} />
-                    <div className="cart-row-info">
-                      <span className="cart-row-name">{item.name}</span>
-                      <span className="cart-row-city">{item.city}</span>
-                    </div>
-                    <b className="cart-row-price">${item.price.toLocaleString()}</b>
-                    <button className="cart-remove" onClick={() => removeFromCart(i)}>✕</button>
-                  </div>
-                ))}
-              </div>
-              <div className="cart-summary">
-                <div className="cart-total-row">
-                  <span>Итого</span>
-                  <b>${total.toLocaleString()}</b>
-                </div>
-                <button className="checkout-btn">Оформить заявку</button>
-              </div>
-            </div>
-          )}
-        </div>
+      {view === "profile" && user && (
+        <ProfilePage 
+          user={user}
+          requests={requests}
+          removeRequest={removeRequest}
+          latestProducts={latestProducts}
+          favorites={favorites}
+          toggleFav={toggleFav}
+          addRequest={addRequest}
+          onOpen={handleOpenApartment}
+        />
       )}
 
       {/* ══════════════════════════════════════════════
