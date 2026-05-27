@@ -31,6 +31,7 @@ export default function App() {
   // Auth state
   const [user, setUser] = useState(null);
   const [showAuth, setShowAuth] = useState(false);
+  const [showAdminModal, setShowAdminModal] = useState(false);
 
   // Проверяем сессию при загрузке
   useEffect(() => {
@@ -76,6 +77,11 @@ export default function App() {
   const handleLogin = (userData) => {
     setUser(userData);
     setShowAuth(false);
+    
+    // Если почта админская, показываем окошко со ссылкой
+    if (userData.email?.toLowerCase().includes("admin") || userData.userName?.toLowerCase().includes("admin")) {
+      setShowAdminModal(true);
+    }
   };
 
   const handleLogout = async () => {
@@ -342,6 +348,21 @@ export default function App() {
       )}
 
       <Footer />
+
+      {showAdminModal && (
+        <div className="modal-overlay" onClick={() => setShowAdminModal(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <h3>Панель управления</h3>
+            <p>Вы вошли как администратор. Перейдите в панель управления для редактирования объектов и пользователей.</p>
+            <div className="modal-actions">
+              <a href="http://localhost:5174/" target="_blank" rel="noopener noreferrer" className="admin-link-btn" onClick={() => setShowAdminModal(false)}>
+                Открыть админку
+              </a>
+              <button className="modal-close-btn" onClick={() => setShowAdminModal(false)}>Продолжить на сайте</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

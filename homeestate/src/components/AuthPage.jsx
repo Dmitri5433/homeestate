@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 
 const API_URL = "http://localhost:5182/api/auth";
 
@@ -16,6 +16,19 @@ export default function AuthPage({ onLogin }) {
   const handleSubmit = async () => {
     setLoading(true);
     setError(null);
+
+    // Временный хардкод для быстрого входа в админку без бекенда
+    if (mode === "login" && form.email === "admin@homeestate.com" && form.password === "admin123") {
+      setLoading(false);
+      onLogin({
+        userName: "Администратор",
+        email: "admin@homeestate.com",
+        role: "Admin",
+        token: "admin-secret-token"
+      });
+      return;
+    }
+
     try {
       const url = mode === "login" ? `${API_URL}/login` : `${API_URL}/register`;
       const body = mode === "login"
@@ -46,7 +59,7 @@ export default function AuthPage({ onLogin }) {
           setError(data.message);
         }
       } else {
-        onLogin(data);
+        onLogin({ ...data, email: form.email });
       }
     } catch {
       setError("Не удалось подключиться к серверу.");
