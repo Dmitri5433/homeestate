@@ -21,7 +21,7 @@ function UsersPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:5182/api/auth/users")
+    fetch("http://localhost:5182/api/auth/users", { credentials: "include" })
       .then(r => r.json())
       .then(d => { setUsers(d); setLoading(false); })
       .catch(() => setLoading(false));
@@ -81,7 +81,7 @@ export default function App() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API}/getAll`);
+      const res = await fetch(`${API}/getAll`, { credentials: "include" });
       const data = await res.json();
       setApartments(data);
     } catch {
@@ -141,6 +141,7 @@ export default function App() {
         method: modal === "add" ? "POST" : "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
+        credentials: "include",
       });
       const data = await res.json();
       if (data.isSuccess) {
@@ -160,7 +161,7 @@ export default function App() {
   const handleDelete = async () => {
     setSaving(true);
     try {
-      const res = await fetch(`${API}/id?id=${form.id}`, { method: "DELETE" });
+      const res = await fetch(`${API}/${form.id}`, { method: "DELETE", credentials: "include" });
       const data = await res.json();
       if (data.isSuccess) {
         setMsg({ type: "success", text: data.message });

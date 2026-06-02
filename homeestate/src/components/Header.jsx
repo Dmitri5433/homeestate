@@ -14,6 +14,11 @@ export default function Header({ view, setView, favCount, requestsCount, user, o
         
         {user ? (
           <>
+            {user.role === 'Admin' && (
+              <a href="http://localhost:5174/" target="_blank" rel="noopener noreferrer" className="cart-btn" style={{ background: 'var(--navy)', textDecoration: 'none' }}>
+                ⚙️ Админ панель
+              </a>
+            )}
             <button className="cart-btn" onClick={() => setView("profile")}>
               📋 Заявки {requestsCount > 0 && <span>{requestsCount}</span>}
             </button>

@@ -17,18 +17,6 @@ export default function AuthPage({ onLogin }) {
     setLoading(true);
     setError(null);
 
-    // Временный хардкод для быстрого входа в админку без бекенда
-    if (mode === "login" && form.email === "admin@homeestate.com" && form.password === "admin123") {
-      setLoading(false);
-      onLogin({
-        userName: "Администратор",
-        email: "admin@homeestate.com",
-        role: "Admin",
-        token: "admin-secret-token"
-      });
-      return;
-    }
-
     try {
       const url = mode === "login" ? `${API_URL}/login` : `${API_URL}/register`;
       const body = mode === "login"

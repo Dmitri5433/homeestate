@@ -78,8 +78,8 @@ export default function App() {
     setUser(userData);
     setShowAuth(false);
     
-    // Если почта админская, показываем окошко со ссылкой
-    if (userData.email?.toLowerCase().includes("admin") || userData.userName?.toLowerCase().includes("admin")) {
+    // Если роль админ, показываем окошко со ссылкой
+    if (userData.role === 'Admin') {
       setShowAdminModal(true);
     }
   };
