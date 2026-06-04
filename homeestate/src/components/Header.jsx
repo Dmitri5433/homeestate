@@ -14,7 +14,7 @@ export default function Header({ view, setView, favCount, requestsCount, user, o
         
         {user ? (
           <>
-            {user.role === 'Admin' && (
+            {user.role?.toLowerCase() === 'admin' && (
               <a href="http://localhost:5174/" target="_blank" rel="noopener noreferrer" className="cart-btn" style={{ background: 'var(--navy)', textDecoration: 'none' }}>
                 ⚙️ Админ панель
               </a>

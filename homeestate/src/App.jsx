@@ -79,7 +79,7 @@ export default function App() {
     setShowAuth(false);
     
     // Если роль админ, показываем окошко со ссылкой
-    if (userData.role === 'Admin') {
+    if (userData.role?.toLowerCase() === 'admin') {
       setShowAdminModal(true);
     }
   };
@@ -356,9 +356,16 @@ export default function App() {
             <h3>Панель управления</h3>
             <p>Вы вошли как администратор. Перейдите в панель управления для редактирования объектов и пользователей.</p>
             <div className="modal-actions">
-              <a href="http://localhost:5174/" target="_blank" rel="noopener noreferrer" className="admin-link-btn" onClick={() => setShowAdminModal(false)}>
+              <button 
+                className="admin-link-btn" 
+                style={{ border: 'none', cursor: 'pointer' }}
+                onClick={() => {
+                  window.open("http://localhost:5174/", "_blank");
+                  setShowAdminModal(false);
+                }}
+              >
                 Открыть админку
-              </a>
+              </button>
               <button className="modal-close-btn" onClick={() => setShowAdminModal(false)}>Продолжить на сайте</button>
             </div>
           </div>
