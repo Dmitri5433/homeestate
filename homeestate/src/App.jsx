@@ -248,7 +248,8 @@ export default function App() {
       ══════════════════════════════════════════════ */}
       {view === "apartment" && selectedApartmentId && (
         <ApartmentDetails 
-          id={selectedApartmentId} 
+          id={selectedApartmentId}
+          user={user}
           onBack={() => setView("catalog")}
           onAdd={addRequest}
           isFav={favorites.includes(selectedApartmentId)}

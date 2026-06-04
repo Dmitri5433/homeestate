@@ -13,6 +13,13 @@ const EMPTY_FORM = {
   price: "",
   imageUrl: "",
   images: [],
+  description: "",
+  district: "",
+  floor: "",
+  entrance: "",
+  totalFloors: "",
+  hasParking: false,
+  hasElevator: false,
 };
 
 
@@ -136,6 +143,9 @@ export default function App() {
         rooms: parseInt(form.rooms),
         area: parseFloat(form.area),
         price: parseFloat(form.price),
+        floor: parseInt(form.floor) || 0,
+        entrance: parseInt(form.entrance) || 0,
+        totalFloors: parseInt(form.totalFloors) || 0,
       };
       const res = await fetch(API, {
         method: modal === "add" ? "POST" : "PUT",
@@ -450,6 +460,41 @@ export default function App() {
                 <div className="form-field form-field--full">
                   <label>Главное изображение (URL)</label>
                   <input name="imageUrl" value={form.imageUrl} onChange={handleChange} placeholder="https://..." />
+                </div>
+
+                {/* Расширенное описание */}
+                <div className="form-field form-field--full">
+                  <label>Район</label>
+                  <input name="district" value={form.district} onChange={handleChange} placeholder="Центр, Рышкановка, Ботаника..." />
+                </div>
+                <div className="form-field">
+                  <label>Этаж</label>
+                  <input name="floor" type="number" value={form.floor} onChange={handleChange} min="1" placeholder="5" />
+                </div>
+                <div className="form-field">
+                  <label>Всего этажей в доме</label>
+                  <input name="totalFloors" type="number" value={form.totalFloors} onChange={handleChange} min="1" placeholder="9" />
+                </div>
+                <div className="form-field">
+                  <label>Подъезд</label>
+                  <input name="entrance" type="number" value={form.entrance} onChange={handleChange} min="1" placeholder="2" />
+                </div>
+                <div className="form-field" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <label style={{ margin: 0 }}>
+                    <input type="checkbox" checked={form.hasParking} onChange={e => setForm(prev => ({ ...prev, hasParking: e.target.checked }))} style={{ marginRight: 8 }} />
+                    🚗 Парковка
+                  </label>
+                  <label style={{ margin: 0 }}>
+                    <input type="checkbox" checked={form.hasElevator} onChange={e => setForm(prev => ({ ...prev, hasElevator: e.target.checked }))} style={{ marginRight: 8 }} />
+                    🛗 Лифт
+                  </label>
+                </div>
+                <div className="form-field form-field--full">
+                  <label>Описание квартиры</label>
+                  <textarea name="description" value={form.description} onChange={handleChange}
+                    placeholder="Опишите квартиру: состояние ремонта, инфраструктура, особенности..."
+                    rows={4} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontFamily: 'inherit', resize: 'vertical' }}
+                  />
                 </div>
                 <div className="form-field form-field--full">
                   <label>Дополнительные фото</label>
