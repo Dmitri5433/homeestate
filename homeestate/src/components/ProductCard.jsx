@@ -3,6 +3,7 @@ import { useState } from "react";
 export default function ProductCard({ item, isFav, onFav, onAdd, onOpen }) {
   const [liked, setLiked] = useState(false);
   const [added, setAdded] = useState(false);
+  const [imgIndex, setImgIndex] = useState(0);
 
   const handleAdd = () => {
     onAdd();
@@ -10,10 +11,42 @@ export default function ProductCard({ item, isFav, onFav, onAdd, onOpen }) {
     setTimeout(() => setAdded(false), 1500);
   };
 
+  let imageList = item.images && item.images.length > 0 ? item.images : [item.image];
+  if (imageList.length === 1) {
+    imageList = [
+      imageList[0],
+      "https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800",
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800"
+    ];
+  }
+
+  const nextImg = (e) => {
+    e.stopPropagation();
+    setImgIndex((prev) => (prev + 1) % imageList.length);
+  };
+
+  const prevImg = (e) => {
+    e.stopPropagation();
+    setImgIndex((prev) => (prev - 1 + imageList.length) % imageList.length);
+  };
+
   return (
     <div className="card" onClick={onOpen} style={{ cursor: "pointer" }}>
       <div className="card-image">
-        <img src={item.image} alt={item.name} loading="lazy" />
+        <img src={imageList[imgIndex]} alt={item.name} loading="lazy" />
+        
+        {imageList.length > 1 && (
+          <>
+            <button className="card-image-nav prev" onClick={prevImg}>❮</button>
+            <button className="card-image-nav next" onClick={nextImg}>❯</button>
+            <div className="card-image-dots">
+              {imageList.map((_, i) => (
+                <div key={i} className={`card-image-dot ${i === imgIndex ? 'active' : ''}`} />
+              ))}
+            </div>
+          </>
+        )}
+
         <button className="fav-btn" onClick={(e) => { e.stopPropagation(); onFav(); }} title="В избранное">
           {isFav ? "❤️" : "🤍"}
         </button>

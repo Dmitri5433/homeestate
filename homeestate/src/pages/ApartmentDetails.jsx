@@ -22,7 +22,17 @@ export default function ApartmentDetails({ id, user, onBack, onAdd, isFav, onFav
       if (!res.ok) throw new Error("Ошибка загрузки");
       const data = await res.json();
       const fallbackImage = "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600";
-      const images = data.images && data.images.length > 0 ? data.images : [data.imageUrl || fallbackImage];
+      let images = data.images && data.images.length > 0 ? data.images : [data.imageUrl || fallbackImage];
+      
+      // Добавляем тестовые фотографии, если с бэкенда приходит только одна
+      if (images.length === 1) {
+        images = [
+          images[0],
+          "https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800",
+          "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800"
+        ];
+      }
+      
       setApartment({ ...data, images });
     } catch (err) {
       setError(err.message);
