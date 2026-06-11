@@ -223,7 +223,7 @@ export default function ApartmentDetails({ id, user, onBack, onAdd, isFav, onFav
               <div className={`review-msg review-msg--${reviewMsg.type}`}>{reviewMsg.text}</div>
             )}
             <button className="review-submit-btn" onClick={handleReviewSubmit} disabled={reviewSubmitting}>
-              {reviewSubmitting ? "Отправка..." : "Оставить отзыв"}
+              {reviewSubmitting ? "Сохранение..." : "Сохранить отзыв"}
             </button>
           </div>
         ) : (

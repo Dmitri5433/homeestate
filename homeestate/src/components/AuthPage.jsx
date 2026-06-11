@@ -18,6 +18,19 @@ export default function AuthPage({ onLogin }) {
     setError(null);
 
     try {
+      if (mode === "register") {
+        if (form.password.length < 8) {
+          setError("Пароль должен содержать минимум 8 символов.");
+          setLoading(false);
+          return;
+        }
+        if (!/[a-zA-Zа-яА-Я]/.test(form.password) || !/[0-9]/.test(form.password)) {
+          setError("Пароль должен содержать как минимум одну букву и одну цифру.");
+          setLoading(false);
+          return;
+        }
+      }
+
       const url = mode === "login" ? `${API_URL}/login` : `${API_URL}/register`;
       const body = mode === "login"
         ? { email: form.email, password: form.password }

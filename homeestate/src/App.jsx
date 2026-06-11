@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import emailjs from '@emailjs/browser';
 import "./App.css";
 
 import Header from "./components/Header";
@@ -105,6 +106,27 @@ export default function App() {
     }
     if (!requests.some(req => req.id === item.id)) {
       setRequests((prev) => [...prev, { ...item, date: new Date().toLocaleDateString() }]);
+
+      // Отправка уведомления на почту через EmailJS
+      emailjs.send(
+        "service_pea98x5", 
+        "template_1r8yeyl", 
+        {
+          user_name: user.userName,
+          user_email: user.email,
+          apartment_name: item.name,
+          apartment_city: item.city,
+          apartment_price: item.price,
+          message: `Новая заявка на просмотр! Пользователь ${user.userName} (${user.email}) хочет посмотреть квартиру "${item.name}" в г. ${item.city}. Цена: $${item.price}.`
+        }, 
+        "YCxPe0x8qaPQkFUzS"
+      ).then(() => {
+        alert("Письмо успешно отправлено!");
+        console.log("Email sent successfully!");
+      }).catch((err) => {
+        alert("Ошибка EmailJS: " + (err.text || err.message || JSON.stringify(err)) + "\nПроверьте консоль для деталей.");
+        console.error("Failed to send email:", err);
+      });
     }
   };
   const removeRequest = (id) => setRequests((prev) => prev.filter((r) => r.id !== id));
