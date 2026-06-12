@@ -17,6 +17,10 @@
   --shadow-lg: 0 20px 60px rgba(26,26,46,0.15);
   --radius: 16px;
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  
+  --primary: var(--gold);
+  --surface: #ffffff;
+  --text-muted: var(--muted);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }

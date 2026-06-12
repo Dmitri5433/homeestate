@@ -24,14 +24,7 @@ export default function ApartmentDetails({ id, user, onBack, onAdd, isFav, onFav
       const fallbackImage = "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600";
       let images = data.images && data.images.length > 0 ? data.images : [data.imageUrl || fallbackImage];
       
-      // Добавляем тестовые фотографии, если с бэкенда приходит только одна
-      if (images.length === 1) {
-        images = [
-          images[0],
-          "https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800",
-          "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800"
-        ];
-      }
+
       
       setApartment({ ...data, images });
     } catch (err) {
@@ -92,7 +85,12 @@ export default function ApartmentDetails({ id, user, onBack, onAdd, isFav, onFav
         {/* Галерея */}
         <div className="gallery-section">
           <div className="main-image-container">
-            <img src={apartment.images[currentImageIndex]} alt={apartment.name} className="main-image" />
+            <img 
+              src={apartment.images[currentImageIndex]} 
+              alt={apartment.name} 
+              className="main-image" 
+              onError={(e) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600"; }}
+            />
             {apartment.images.length > 1 && (
               <>
                 <button className="gallery-nav prev" onClick={prevImage}>❮</button>
@@ -106,9 +104,14 @@ export default function ApartmentDetails({ id, user, onBack, onAdd, isFav, onFav
           {apartment.images.length > 1 && (
             <div className="thumbnails">
               {apartment.images.map((img, idx) => (
-                <img key={idx} src={img} alt={`thumbnail ${idx}`}
+                <img 
+                  key={idx} 
+                  src={img} 
+                  alt={`thumbnail ${idx}`}
                   className={`thumbnail ${idx === currentImageIndex ? 'active' : ''}`}
-                  onClick={() => setCurrentImageIndex(idx)} />
+                  onClick={() => setCurrentImageIndex(idx)} 
+                  onError={(e) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600"; }}
+                />
               ))}
             </div>
           )}

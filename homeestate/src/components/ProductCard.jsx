@@ -11,14 +11,9 @@ export default function ProductCard({ item, isFav, onFav, onAdd, onOpen }) {
     setTimeout(() => setAdded(false), 1500);
   };
 
-  let imageList = item.images && item.images.length > 0 ? item.images : [item.image];
-  if (imageList.length === 1) {
-    imageList = [
-      imageList[0],
-      "https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800",
-      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800"
-    ];
-  }
+  const fallbackImage = "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600";
+  let imageList = item.images && item.images.length > 0 ? item.images : [item.imageUrl || item.image || fallbackImage];
+
 
   const nextImg = (e) => {
     e.stopPropagation();
@@ -33,7 +28,12 @@ export default function ProductCard({ item, isFav, onFav, onAdd, onOpen }) {
   return (
     <div className="card" onClick={onOpen} style={{ cursor: "pointer" }}>
       <div className="card-image">
-        <img src={imageList[imgIndex]} alt={item.name} loading="lazy" />
+        <img 
+          src={imageList[imgIndex]} 
+          alt={item.name} 
+          loading="lazy" 
+          onError={(e) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600"; }}
+        />
         
         {imageList.length > 1 && (
           <>
